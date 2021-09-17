@@ -20,14 +20,11 @@ if (config.clearUploadsOnStart)
         fs.mkdirSync(config.uploadsDir);        
     }
 
-if (config.clearAddedPresetsOnStart) {
-    // TODO verify existing images/records
+if (config.verifyPresetsOnStart) {
+    // TODO
+    console.info(`(TBD) Verifying presets integrity...`);
 
 }; 
-
-
-// require('dotenv').config({ path: '.env-dev' })
-// console.log(process.env.PRT);
 
 
 if (config.https) {

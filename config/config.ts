@@ -1,13 +1,35 @@
-import sconfig from './sconfig';
+import { 
+    devConfiguration, productionConfiguration, testConfiguration, localProductionConfiguration 
+} from '../.env';
+
+
+let sconfig;
+switch (process.env.NODE_ENV) {
+    case 'production':
+        sconfig = productionConfiguration;        
+        break;
+    
+    case 'testing':
+        sconfig = testConfiguration;        
+        break;
+
+    case 'local':
+        sconfig = localProductionConfiguration;        
+        break;
+    
+    default:
+        sconfig = devConfiguration;
+}
 
 
 const config = {
-    port: process.env.PORT || 3000,
-    https_port: process.env.PORT || 3003,
-    https: true,
-    mode: process.env.NODE_ENV || 'development',
+    mode: process.env.NODE_ENV,
 
-    corsOrigin: ['http://localhost:4500',],
+    port: 3000,
+    https_port: 3003,
+    https: true,
+
+    corsOrigin: sconfig.corsOrigin,
     corsSuccessStatus: 200,
 
     dbMode: 'sqlite',                // only valid modes are 'sqlite' and 'postgres'
@@ -34,23 +56,17 @@ const config = {
 
     initDbOnStart: false,            // restore DB to default state on start?
     clearUploadsOnStart: true,      // delete everything from uploads on start?
-    clearAddedPresetsOnStart: false, // delete user added presets on start?
+    verifyPresetsOnStart: true, // delete user added presets on start?
 
     secret: sconfig.secret,
     jwtSecret: sconfig.jwtSecret,
     adminPwd: sconfig.adminPwd,      // default superadmin
     userPwd: sconfig.userPwd,        // default user
 
-    ssl_key: sconfig.ssl_key_local,
-    ssl_cert: sconfig.ssl_cert_local
+    ssl_key: sconfig.ssl_key,
+    ssl_cert: sconfig.ssl_cert
 }
 
-if (process.env.NODE_ENV === 'production') {
-    config.ssl_key = sconfig.ssl_key_vm;
-    config.ssl_cert = sconfig.ssl_cert_vm;
-    config.corsOrigin = ['https://victorious-tree-0945fe003.azurestaticapps.net', 'https://www.memoricci.fun'];
-
-}
 
 export default config;
 
