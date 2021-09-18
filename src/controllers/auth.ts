@@ -12,6 +12,9 @@ const requireSignin = expressJwt({
     algorithms: ['HS256']
 })
 
+
+// TODO extract authorization functions for every specific case
+// TODO unit-test-this for each with request/response mockups
 const hasAuthorization = function(request: Request, response: Response, next: NextFunction) {
     let authorized = false;
 
@@ -39,9 +42,6 @@ const hasAuthorization = function(request: Request, response: Response, next: Ne
     else
         next();
 }
-
-// TODO add specific authorization functions
-
 
 
 const signin = async function(request: Request, response: Response) {

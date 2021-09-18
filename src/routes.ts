@@ -35,11 +35,11 @@ router.route('/auth/signout')
 
 
 router.route('/api/users')
-    .get(usersCtrl.list) // TODO add specific auth
+    .get(usersCtrl.list) // TODO add requireSignin to protect emails
     .post(usersCtrl.create);
 
 router.route('/api/users/:userId')
-    .get(usersCtrl.read) // TODO add specific auth
+    .get(usersCtrl.read) // TODO add requireSignin to protect emails
     .put(authCtrl.requireSignin, authCtrl.hasAuthorization, usersCtrl.update)
     .delete(authCtrl.requireSignin, authCtrl.hasAuthorization, usersCtrl.remove);
 
@@ -51,7 +51,7 @@ router.route('/api/presets')
     .post(authCtrl.requireSignin, authCtrl.hasAuthorization, uploadImages, presetsCtrl.upload)
 
 router.route('/api/presets/:presetId')
-    .get(presetsCtrl.read) // TODO add specific auth
+    .get(presetsCtrl.read)
     .put(authCtrl.requireSignin, authCtrl.hasAuthorization, presetsCtrl.edit)
     .delete(authCtrl.requireSignin, authCtrl.hasAuthorization, presetsCtrl.remove);
 

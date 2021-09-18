@@ -6,7 +6,7 @@
   "scripts": {
     "compile": "npx tsc && node ./dist/src/main.js",
     "dev": "export NODE_ENV=development && node ./node_modules/nodemon/bin/nodemon.js ./dist/main.js -e ts --exec \"npm run compile\"",
-    "test": "export NODE_ENV=testing && mocha",
+    "test": "tsc --project tsconfig.test.json",
     "start": "export NODE_ENV=production && npx tsc && node ./dist/src/main.js",
     "local": "export NODE_ENV=local && npx tsc && node ./dist/src/main.js"
   },

@@ -1,5 +1,5 @@
 import { 
-    devConfiguration, productionConfiguration, testConfiguration, localProductionConfiguration 
+    devConfiguration, productionConfiguration, localProductionConfiguration 
 } from '../.env';
 
 
@@ -7,10 +7,6 @@ let sconfig;
 switch (process.env.NODE_ENV) {
     case 'production':
         sconfig = productionConfiguration;        
-        break;
-    
-    case 'testing':
-        sconfig = testConfiguration;        
         break;
 
     case 'local':
