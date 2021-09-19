@@ -31,3 +31,8 @@ export const generateImage = async function(word: string, picSize: number, bgCol
         })
     })
 }
+
+
+export function sleep(ms: number): Promise<any> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+};

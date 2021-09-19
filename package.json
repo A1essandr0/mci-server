@@ -6,7 +6,7 @@
   "scripts": {
     "compile": "npx tsc && node ./dist/src/main.js",
     "dev": "export NODE_ENV=development && node ./node_modules/nodemon/bin/nodemon.js ./dist/main.js -e ts --exec \"npm run compile\"",
-    "test": "tsc --project tsconfig.test.json",
+    "test": "tsc --project tsconfig.test.json && mocha test/**/* --recursive",
     "start": "export NODE_ENV=production && npx tsc && node ./dist/src/main.js",
     "local": "export NODE_ENV=local && npx tsc && node ./dist/src/main.js"
   },
@@ -19,6 +19,7 @@
     "@types/express": "^4.17.11",
     "@types/express-jwt": "^6.0.1",
     "@types/jsonwebtoken": "^8.5.1",
+    "@types/mocha": "^9.0.0",
     "@types/node": "^15.0.1",
     "@types/pg": "^8.6.0",
     "mocha": "^8.3.2",
