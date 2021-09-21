@@ -35,11 +35,11 @@ router.route('/auth/signout')
 
 
 router.route('/api/users')
-    .get(usersCtrl.list) // TODO add requireSignin to protect emails
+    .get(usersCtrl.list) // TODO add auth to protect emails
     .post(usersCtrl.create);
 
 router.route('/api/users/:userId')
-    .get(usersCtrl.read) // TODO add requireSignin to protect emails
+    .get(usersCtrl.read) // TODO add auth to protect emails
     .put(authCtrl.requireSignin, authCtrl.hasAuthorization, usersCtrl.update)
     .delete(authCtrl.requireSignin, authCtrl.hasAuthorization, usersCtrl.remove);
 

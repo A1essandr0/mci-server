@@ -67,7 +67,7 @@ describe('Generating images', function() {
 
     it('#test image generation', async function() {
         const validationFileBuffer = fs.readFileSync(validationFile);
-        await sleep(200);
+        await sleep(500);
         
         const correctFileBuffer = fs.readFileSync(correctFile);
         assert.strictEqual(validationFileBuffer.equals(correctFileBuffer), true);
@@ -77,8 +77,3 @@ describe('Generating images', function() {
     });
 
 })
-
-
-
-
-// hasAuthorization family functions

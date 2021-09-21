@@ -14,7 +14,6 @@ const requireSignin = expressJwt({
 
 
 // TODO extract authorization functions for every specific case
-// TODO unit-test-this for each with request/response mockups
 const hasAuthorization = function(request: Request, response: Response, next: NextFunction) {
     let authorized = false;
 
