@@ -8,7 +8,8 @@
     "dev": "export NODE_ENV=development && node ./node_modules/nodemon/bin/nodemon.js ./dist/main.js -e ts --exec \"npm run compile\"",
     "test": "tsc --project tsconfig.test.json && mocha test/**/* --recursive",
     "start": "export NODE_ENV=production && npx tsc && node ./dist/src/main.js",
-    "local": "export NODE_ENV=local && npx tsc && node ./dist/src/main.js"
+    "local": "export NODE_ENV=local && npx tsc && node ./dist/src/main.js",
+    "backup": "node ./scripts/backup-db.js"
   },
   "keywords": [],
   "author": "",
