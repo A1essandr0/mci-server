@@ -1,26 +1,21 @@
+# transpiled output
+dist/
 # compiled tests
 test/
-
 # Dependency directories
 node_modules/
 jspm_packages/
-
 # keys and certificates
+cert/
 *.pem
-
 # dotenv environment variables file
 .env
 .env.ts
-
-# transpiled output
-dist
-
 # assets
 uploads/
-# preset_src/
-# presets.db/
+preset_src/
+presets.db/
 backup/
-
 
 
 ####################
