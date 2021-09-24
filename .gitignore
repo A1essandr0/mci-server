@@ -14,7 +14,7 @@ cert/
 # assets
 uploads/
 preset_src/
-presets.db/
+presets.db
 backup/
 
 
