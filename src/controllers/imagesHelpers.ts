@@ -1,5 +1,4 @@
 const fs = require('fs');
-import jimp from 'jimp';
 import config from '../../config/config';
 import { executeSqlQuery } from './dbHelpers';
 import { prepareTargetDir, minifyImage, generateImage } from './generalLib';
@@ -24,6 +23,7 @@ export const presetsToJson = async function(userId: number | undefined) {
     else
         presetsRecords = await executeSqlQuery("SELECT * FROM presets WHERE is_playable_by_all = 1")
 
+    // TODO use dictionary instead of array, presetName as key
     let result = [];
     for (let pr of presetsRecords) {
         let presetCards = await executeSqlQuery(
@@ -56,14 +56,6 @@ export const presetsToJson = async function(userId: number | undefined) {
 
     return result;
 }
-
-
-// const prepareTargetDir = function(targetDir: string) {
-//     if (fs.existsSync(targetDir)) {
-//         fs.rmSync(targetDir, {recursive: true}, (err: Error) => { if (err) throw err})
-//     }
-//     fs.mkdirSync(targetDir, {}, (err: Error) => { if (err) throw err});
-// }
 
 
 export async function createImages(userId: number, body: any) {
@@ -223,26 +215,4 @@ export async function deleteImages(presetRecord: any) {
     )
 }
 
-
-// const minifyImage = async function(picSize: number, sourceFile: string, targetFile: string) {
-//     return await jimp.read(sourceFile).then(
-//         image => {
-//             image.background(0xFFFFFFFF).contain(picSize, picSize).write(targetFile);
-//         }
-//     ).catch(err => console.log(err));
-// }
-
-
-// const generateImage = async function(word: string, picSize: number, bgColor: string, font: string, outfile: string) {
-//     return await new jimp(picSize, picSize, bgColor, (err, image) => {
-//         jimp.loadFont(font).then(font => {
-//             let [textWidth, textHeight] = [jimp.measureText(font, word), jimp.measureTextHeight(font, word, picSize)];
-//             let [xpos, ypos] = [
-//                 (picSize - textWidth) / 2,
-//                 (picSize - textHeight) / 2
-//             ];
-//             image.print(font, xpos, ypos, word).write(outfile)
-//         })
-//     })
-// }
 
