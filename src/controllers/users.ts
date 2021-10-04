@@ -40,11 +40,13 @@ const create = async function(request: Request, response: Response) {
         .update(request.body.password)
         .digest('hex');
 
-        await executeSqlQuery(
-            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING name;",
+        const createdUser = await executeSqlQuery(
+            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name;",
             [request.body.name, request.body.email, hash]
         )
-        response.status(200).json( { message: 'User created'} );
+        response.status(200).json( { 
+            message: 'User created', id: createdUser[0].id, name: createdUser[0].name
+        });
 
     } else response.status(401).send(
             { error: `User with email ${request.body.email} already exists or user limit exceeded`}
@@ -52,11 +54,11 @@ const create = async function(request: Request, response: Response) {
 };
 
 const update = async function(request: Request, response: Response) {
-    await executeSqlQuery(
+    const modifiedUser = await executeSqlQuery(
         "UPDATE users SET name = $1, email = $2 WHERE id = $3 RETURNING name",
         [request.body.name, request.body.email, response.locals.profile.id]
     )
-    response.status(200).json({ message: `User with id=${response.locals.profile.id} updated` });
+    response.status(200).json({ message: `User with id=${response.locals.profile.id} updated`, name: modifiedUser});
 };
 
 const remove = async function(request: Request, response: Response) {
