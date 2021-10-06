@@ -1,7 +1,9 @@
 const assert = require('assert');
 const fs = require('fs');
 import { describe, it } from 'mocha';
-import { prepareTargetDir, minifyImage, generateImage, sleep } from '../../src/controllers/generalLib';
+import { 
+    prepareTargetDir, minifyImage, generateImage, sleep 
+} from '../../src/controllers/generalLib';
 import tConfig from './testConfig';
 
 
@@ -55,25 +57,21 @@ describe('Generating images', function() {
     const validationFile = `${tConfig.fixturesDir}/generated.jpg`;
     const font = tConfig.defaultFont;
 
-    before(async function() {
-        await generateImage('test', tConfig.defaultPicSize, 'orange', font, correctFile);
-        await generateImage('test', tConfig.defaultPicSize + 2, 'orange', font, wrongFile);
-    });
-
-    after(function() {
-        fs.rmSync(wrongFile, {recursive: true}, (err: Error) => {});
-        fs.rmSync(correctFile, {recursive: true}, (err: Error) => {});
-    });
-
     it('#test image generation', async function() {
         const validationFileBuffer = fs.readFileSync(validationFile);
-        await sleep(500);
-        
-        const correctFileBuffer = fs.readFileSync(correctFile);
-        assert.strictEqual(validationFileBuffer.equals(correctFileBuffer), true);
 
-        const wrongFileBuffer = fs.readFileSync(wrongFile);
-        assert.strictEqual(validationFileBuffer.equals(wrongFileBuffer), false);
-    });
+        let correctImg = await generateImage('test', tConfig.defaultPicSize, 'orange', font);
+        correctImg.write(correctFile, (err) => {
+            const correctFileBuffer = fs.readFileSync(correctFile);
+            assert.strictEqual(validationFileBuffer.equals(correctFileBuffer), true);
+            fs.rmSync(correctFile, {recursive: true}, (err: Error) => {});
+        });
 
+        let wrongImg = await generateImage('test', tConfig.defaultPicSize + 2, 'orange', font);
+        wrongImg.write(wrongFile, (err) => {
+            const wrongFileBuffer = fs.readFileSync(wrongFile);
+            assert.strictEqual(validationFileBuffer.equals(wrongFileBuffer), false);
+            fs.rmSync(wrongFile, {recursive: true}, (err: Error) => {});
+        })
+    })
 })

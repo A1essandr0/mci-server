@@ -89,7 +89,7 @@ export async function createImages(userId: number, body: any) {
     // generating images with words
     prepareTargetDir(`${config.presetDir}/${body.presetName}`);
     let counter = 0;
-    let filename, bgColor, cardValue;
+    let filename, bgColor, cardValue, img;
     for (let cardWord of body.cardValues) {
         bgColor = body.bgColorTwo;
         filename = `number_${counter}.png`;
@@ -99,8 +99,8 @@ export async function createImages(userId: number, body: any) {
             cardValue = cardWord.toLowerCase()
         }
 
-        generateImage(cardWord, defaultPicSize, bgColor, defaultFont,
-            `${config.presetDir}/${body.presetName}/${filename}`);
+        img = await generateImage(cardWord, defaultPicSize, bgColor, defaultFont);
+        img.write(`${config.presetDir}/${body.presetName}/${filename}`)
 
         await executeSqlQuery(
             "INSERT INTO cards (preset_id, value, filename, info) VALUES ($1, $2, $3, $4) RETURNING value",
@@ -111,8 +111,10 @@ export async function createImages(userId: number, body: any) {
     }
 
     // back and empty slot colors
-    generateImage('', defaultPicSize, body.backColor, defaultFont, `${config.presetDir}/${body.presetName}/back.png`);
-    generateImage('', defaultPicSize, body.emptyColor, defaultFont, `${config.presetDir}/${body.presetName}/empty.png`);
+    let backImg = await generateImage('', defaultPicSize, body.backColor, defaultFont);
+    backImg.write(`${config.presetDir}/${body.presetName}/back.png`);
+    let emptyImg = await generateImage('', defaultPicSize, body.emptyColor, defaultFont);
+    emptyImg.write(`${config.presetDir}/${body.presetName}/empty.png`);
 
     // update owned presets counter for user
     await executeSqlQuery(

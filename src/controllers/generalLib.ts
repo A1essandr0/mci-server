@@ -19,17 +19,14 @@ export const minifyImage = async function(picSize: number, sourceFile: string, t
 }
 
 
-export const generateImage = async function(word: string, picSize: number, bgColor: string, font: string, outfile: string) {
-    return await new jimp(picSize, picSize, bgColor, (err, image) => {
-        jimp.loadFont(font).then(font => {
-            let [textWidth, textHeight] = [jimp.measureText(font, word), jimp.measureTextHeight(font, word, picSize)];
-            let [xpos, ypos] = [
-                (picSize - textWidth) / 2,
-                (picSize - textHeight) / 2
-            ];
-            image.print(font, xpos, ypos, word).write(outfile)
-        })
-    })
+export const generateImage = async function(word: string, picSize: number, bgColor: string, font: string) {
+    let img = new jimp(picSize, picSize, bgColor);
+    let loadedFont = await jimp.loadFont(font);
+    let [textWidth, textHeight] = [jimp.measureText(loadedFont, word), jimp.measureTextHeight(loadedFont, word, picSize)];
+    let [xpos, ypos] = [ (picSize - textWidth) / 2, (picSize - textHeight) / 2 ];
+    
+    img.print(loadedFont, xpos, ypos, word);
+    return img;
 }
 
 
