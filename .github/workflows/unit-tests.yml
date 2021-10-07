@@ -3,7 +3,7 @@ name: Unit tests for Memoricci api
 on: [push]
 
 jobs:
-  Run suite 1:
+  run-suite-1:
     runs-on: ubuntu-latest
 
     strategy:
