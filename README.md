@@ -1,2 +1,2 @@
-# memoricci-server
-Memoricci api
+# mci-server
+Source for MCI api
