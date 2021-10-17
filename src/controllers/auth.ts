@@ -13,7 +13,6 @@ const requireSignin = expressJwt({
 })
 
 
-// TODO extract authorization functions for every specific case
 const hasAuthorization = function(request: Request, response: Response, next: NextFunction) {
     let authorized = false;
 

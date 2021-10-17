@@ -23,7 +23,6 @@ export const presetsToJson = async function(userId: number | undefined) {
     else
         presetsRecords = await executeSqlQuery("SELECT * FROM presets WHERE is_playable_by_all = 1")
 
-    // TODO use dictionary instead of array, presetName as key
     let result = [];
     for (let pr of presetsRecords) {
         let presetCards = await executeSqlQuery(
