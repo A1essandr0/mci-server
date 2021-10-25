@@ -13,6 +13,14 @@ const read = function(request: Request, response: Response) {
     response.json(response.locals.presetRecord);
 }
 
+
+const make = function(request: Request, response: Response) {
+
+    response.status(501).send({message: 'not implemented'})
+}
+
+
+
 const create = async function(request: Request, response: Response) {
     try {
         await createImages(response.locals.user.id, request.body);
@@ -70,4 +78,4 @@ const presetById = async function(request: Request, response: Response, next: Ne
     next();
 }
 
-export default { list, read, upload, create, edit, remove, presetById, presetsToJson };
+export default { list, read, make, upload, create, edit, remove, presetById, presetsToJson };

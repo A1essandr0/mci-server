@@ -55,6 +55,11 @@ router.route('/api/presets/:presetId')
     .put(authCtrl.requireSignin, authCtrl.hasAuthorization, presetsCtrl.edit)
     .delete(authCtrl.requireSignin, authCtrl.hasAuthorization, presetsCtrl.remove);
 
+
+router.route('/api/make-new-preset')
+    .post(authCtrl.requireSignin, authCtrl.hasAuthorization, presetsCtrl.make)
+
+
 router.route('/api/new-preset')
     .post(authCtrl.requireSignin, authCtrl.hasAuthorization, presetsCtrl.create);
 
