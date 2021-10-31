@@ -57,6 +57,65 @@ export const presetsToJson = async function(userId: number | undefined) {
 }
 
 
+// TODO
+export function presetIsValid(files: any, body: any) {
+
+    return true;
+}
+
+
+export async function makeNewPreset(userId: number, files: any, body: any) {
+
+    // correct directory for preset
+    let presetExists = await executeSqlQuery(
+        "SELECT id FROM presets WHERE name = $1",
+        [body.presetName,]
+    );
+    if (presetExists.length > 0) throw `Preset with the name '${body.presetName}' already exists`;
+
+    let ownedBy = await executeSqlQuery(
+        "SELECT id, name, presets_owned FROM users WHERE id = $1",
+        [userId,]
+    );
+    if (ownedBy[0].presets_owned >= config.maxOwnedPresets) throw `Can't create: preset limit exceeded`;
+
+    // registering preset in DB
+    let newMadePreset = await executeSqlQuery(
+        `INSERT INTO presets 
+            (owner_id, owner_name, name, is_playable_by_all, is_viewable_by_all, is_viewable_by_users, card_back, card_empty, description)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, name, owner_name;`,
+        [userId, ownedBy[0].name, body.presetName,
+            Number(body.isPlayableByAll === 'true'), Number(body.isViewableByAll === 'true'), Number(body.isViewableByUsers === 'true'),
+            'back', 'empty', body.presetDescription
+        ]
+    );
+    if (newMadePreset.length === 0) throw `Something went wrong during uploading preset '${body.presetName}'`;
+
+    // creating and registering images
+    // copying file images
+    // if no image for card back / card empty provided, default ones are used
+    prepareTargetDir(`${config.presetDir}/${body.presetName}`);
+    let [backFilename, emptyFilename] = [defaultBackFilename, defaultEmptyFilename];
+ 
+
+
+
+    // back and empty slots
+
+
+
+
+    // update owned presets counter for user
+    await executeSqlQuery(
+        "UPDATE users SET presets_owned = $1 WHERE id = $2 RETURNING id",
+        [ownedBy[0].presets_owned + 1, userId]
+    );
+}
+
+
+
+
+// to be deprecated
 export async function createImages(userId: number, body: any) {
 
     // correct directory for preset
@@ -123,6 +182,7 @@ export async function createImages(userId: number, body: any) {
 }
 
 
+// to be deprecated
 export async function registerImages(userId: number, files: any, body: any) {
 
     // correct directory for preset

@@ -22,6 +22,7 @@ const hasAuthorization = function(request: Request, response: Response, next: Ne
         response.locals.profile.id === response.locals.user.id && request.route.path === '/api/users/:userId';
 
     const userCreatingPreset = response.locals.user && request.route.path === '/api/new-preset';
+    const userMakingPreset = response.locals.user && request.route.path === '/api/make-new-preset';
 
     const userUploadingPreset = response.locals.user && request.route.path === '/api/presets' && request.method === 'POST';
 
@@ -31,7 +32,7 @@ const hasAuthorization = function(request: Request, response: Response, next: Ne
         (request.method === 'PUT' || request.method === 'DELETE');
 
 
-    if (userIsAdministrator || userUpdatingHisOwnProfile || userCreatingPreset || 
+    if (userIsAdministrator || userUpdatingHisOwnProfile || userCreatingPreset || userMakingPreset ||
             userUploadingPreset || userModifyingHisOwnPreset) 
         authorized = true;
 

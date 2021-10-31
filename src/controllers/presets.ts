@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { createImages, registerImages, deleteImages, presetsToJson } from './imagesHelpers';
+import { 
+    createImages, registerImages, deleteImages, presetsToJson, makeNewPreset, presetIsValid
+} from './imagesHelpers';
 import { executeSqlQuery } from './dbHelpers';
 
 
@@ -14,13 +16,28 @@ const read = function(request: Request, response: Response) {
 }
 
 
-const make = function(request: Request, response: Response) {
+const make = async function(request: any, response: Response) {
+    console.log(request.body, request.files);
+    if (!presetIsValid(request.body, request.files)) {
+        response.status(500).send(
+            { error: `Sent preset with name=${request.body.presetName} hasn't been formed correctly`});
+        return;
+    }
 
-    response.status(501).send({message: 'not implemented'})
+    try {
+        await makeNewPreset(response.locals.user.id, request.files, request.body);
+    } catch(error) {
+        console.error(error)
+        response.status(500).send({ error: error})
+        return;
+    }
+
+    response.status(200).json({ message: `Preset with name=${request.body.presetName} created` });
 }
 
 
 
+// to be deprecated
 const create = async function(request: Request, response: Response) {
     try {
         await createImages(response.locals.user.id, request.body);
@@ -33,6 +50,7 @@ const create = async function(request: Request, response: Response) {
     response.status(200).json({ message: `Preset with name=${request.body.presetName} created` });
 }
 
+// to be deprecated
 const upload = async function(request: any, response: Response) {
     try {
         await registerImages(response.locals.user.id, request.files, request.body);
@@ -44,6 +62,7 @@ const upload = async function(request: any, response: Response) {
 
     response.status(200).json({ message: `Preset with name=${request.body.presetName} uploaded` });
 }
+
 
 
 const edit = async function(request: Request, response: Response) {
