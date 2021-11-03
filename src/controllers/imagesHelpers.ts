@@ -67,10 +67,8 @@ export function presetIsValid(files: any, body: any) {
 }
 
 
-
-
 export async function makeNewPreset(userId: number, files: any, body: any) {
-    console.log(files, body);
+    // console.log(files, body);
 
     // correct directory for preset
     let presetExists = await executeSqlQuery(
@@ -116,7 +114,6 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
         }
     })
 
-
     // main slots
     for (let key of Object.keys(types)) {
         if (key === '0_0' || key === '0_1') continue;
@@ -154,7 +151,6 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
                 [newMadePreset[0].id, cardValue, filename, info ]
             )
         }
-
     }
 
     // update owned presets counter for user
@@ -163,156 +159,6 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
         [ownedBy[0].presets_owned + 1, userId]
     );
 }
-
-
-
-
-
-// to be deprecated
-export async function createImages(userId: number, body: any) {
-
-    // correct directory for preset
-    let presetExists = await executeSqlQuery(
-        "SELECT id FROM presets WHERE name = $1",
-        [body.presetName,]
-    );
-    if (presetExists.length > 0) throw `Preset with the name '${body.presetName}' already exists`;
-
-    let ownedBy = await executeSqlQuery(
-        "SELECT id, name, presets_owned FROM users WHERE id = $1",
-        [userId,]
-    );
-    if (ownedBy[0].presets_owned >= config.maxOwnedPresets) throw `Can't create: preset limit exceeded`;
-
-    // registering created preset in DB
-    let createdPreset = await executeSqlQuery(
-        `INSERT INTO presets 
-            (owner_id, owner_name, name, is_playable_by_all, is_viewable_by_all, is_viewable_by_users, card_back, card_empty, description)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, name, owner_name;`,
-        [userId, ownedBy[0].name, body.presetName,
-            Number(body.isPlayableByAll === true), Number(body.isViewableByAll === true), Number(body.isViewableByUsers === true),
-            'back.png', 'empty.png', body.presetDescription
-        ]
-    );
-    if (createdPreset.length === 0) throw `Something went wrong during creating preset '${body.presetName}'`;
-
-
-    // generating images with words
-    prepareTargetDir(`${config.presetDir}/${body.presetName}`);
-    let counter = 0;
-    let filename, bgColor, cardValue, img;
-    for (let cardWord of body.cardValues) {
-        bgColor = body.bgColorTwo;
-        filename = `number_${counter}.png`;
-
-        if (counter % 2 == 0) {
-            bgColor = body.bgColorOne;
-            cardValue = cardWord.toLowerCase()
-        }
-
-        img = await generateImage(cardWord, defaultPicSize, bgColor, defaultFont);
-        img.write(`${config.presetDir}/${body.presetName}/${filename}`)
-
-        await executeSqlQuery(
-            "INSERT INTO cards (preset_id, value, filename, info) VALUES ($1, $2, $3, $4) RETURNING value",
-            [createdPreset[0].id, cardValue, filename, body.cardInfos[counter] ]
-        )
-
-        counter++;
-    }
-
-    // back and empty slot colors
-    let backImg = await generateImage('', defaultPicSize, body.backColor, defaultFont);
-    backImg.write(`${config.presetDir}/${body.presetName}/back.png`);
-    let emptyImg = await generateImage('', defaultPicSize, body.emptyColor, defaultFont);
-    emptyImg.write(`${config.presetDir}/${body.presetName}/empty.png`);
-
-    // update owned presets counter for user
-    await executeSqlQuery(
-        "UPDATE users SET presets_owned = $1 WHERE id = $2 RETURNING id",
-        [ownedBy[0].presets_owned + 1, userId]
-    );
-}
-
-
-// to be deprecated
-export async function registerImages(userId: number, files: any, body: any) {
-
-    // correct directory for preset
-    let presetExists = await executeSqlQuery(
-        "SELECT id FROM presets WHERE name = $1",
-        [body.presetName,]
-    );
-    if (presetExists.length > 0) throw `Preset with the name '${body.presetName}' already exists`;
-
-    let ownedBy = await executeSqlQuery(
-        "SELECT id, name, presets_owned FROM users WHERE id = $1",
-        [userId,]
-    );
-    if (ownedBy[0].presets_owned >= config.maxOwnedPresets) throw `Can't upload: preset limit exceeded`;
-
-    // registering preset in DB
-    let uploadedPreset = await executeSqlQuery(
-        `INSERT INTO presets 
-            (owner_id, owner_name, name, is_playable_by_all, is_viewable_by_all, is_viewable_by_users, card_back, card_empty, description)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, name, owner_name;`,
-        [userId, ownedBy[0].name, body.presetName,
-            Number(body.isPlayableByAll === 'true'), Number(body.isViewableByAll === 'true'), Number(body.isViewableByUsers === 'true'),
-            'back', 'empty', body.presetDescription
-        ]
-    );
-    if (uploadedPreset.length === 0) throw `Something went wrong during uploading preset '${body.presetName}'`;
-
-    // registering images in db
-    // copying file images
-    // if no image for card back / card empty provided, default ones are used
-    prepareTargetDir(`${config.presetDir}/${body.presetName}`);
-    let [backFilename, emptyFilename] = [defaultBackFilename, defaultEmptyFilename];
-
-    for (let fileObject of files) {
-        if (fileObject.fieldname === 'backImg') backFilename = fileObject.path
-        if (fileObject.fieldname === 'emptyImg') emptyFilename = fileObject.path
-
-        if (/imgFile/.test(fileObject.fieldname)) {
-            let [_, pairNum, cardNum] = fileObject.fieldname.match(/(\d)(one|two)/)
-            let fileExtension = fileObject.mimetype.slice(6);
-            let [fileInfo, imgInfoProp] = ["n/a", `imgInfo${pairNum}`];
-            let targetFileName = `${config.presetDir}/${body.presetName}/${fileObject.filename}.${fileExtension}`;
-            if (body[imgInfoProp]) fileInfo = body[imgInfoProp];
-
-            minifyImage(defaultPicSize, fileObject.path, targetFileName);
-
-            await executeSqlQuery(
-                "INSERT INTO cards (preset_id, value, filename, info) VALUES ($1, $2, $3, $4) RETURNING value",
-                [uploadedPreset[0].id, pairNum, `${fileObject.filename}.${fileExtension}`, fileInfo]
-            )
-
-            fs.rmSync(fileObject.path);
-        }
-    }
-
-    // custom card back
-    if (backFilename !== defaultBackFilename) {
-        minifyImage(defaultPicSize, backFilename, `${config.presetDir}/${body.presetName}/back`);
-        fs.rmSync(backFilename);
-    } else fs.copyFileSync(backFilename, `${config.presetDir}/${body.presetName}/back`);
-
-    // custom empty slot
-    if (emptyFilename !== defaultEmptyFilename) {
-        minifyImage(defaultPicSize, emptyFilename, `${config.presetDir}/${body.presetName}/empty`);
-        fs.rmSync(emptyFilename);
-    } else fs.copyFileSync(emptyFilename, `${config.presetDir}/${body.presetName}/empty`);
-
-    // update owned presets counter for user
-    await executeSqlQuery(
-        "UPDATE users SET presets_owned = $1 WHERE id = $2 RETURNING id",
-        [ownedBy[0].presets_owned + 1, userId]
-    );
-}
-
-
-
-
 
 export async function deleteImages(presetRecord: any) {
     if (fs.existsSync(`${config.presetDir}/${presetRecord.name}`))
@@ -331,5 +177,3 @@ export async function deleteImages(presetRecord: any) {
         [presetRecord.owner_id, presetRecord.owner_id]
     )
 }
-
-

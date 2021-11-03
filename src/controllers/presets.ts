@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { 
-    createImages, registerImages, deleteImages, presetsToJson, makeNewPreset, presetIsValid
+    deleteImages, presetsToJson, makeNewPreset, presetIsValid
 } from './imagesHelpers';
 import { executeSqlQuery } from './dbHelpers';
 
@@ -14,7 +14,6 @@ const list = async function(request: Request, response: Response) {
 const read = function(request: Request, response: Response) {
     response.json(response.locals.presetRecord);
 }
-
 
 const make = async function(request: any, response: Response) {
     if (!presetIsValid(request.files, request.body)) {
@@ -34,36 +33,6 @@ const make = async function(request: any, response: Response) {
     response.status(200).json({ message: `Preset with name=${request.body.presetName} created` });
 }
 
-
-
-// to be deprecated
-const create = async function(request: Request, response: Response) {
-    try {
-        await createImages(response.locals.user.id, request.body);
-    } catch(error) {
-        console.error(error)
-        response.status(500).send({ error: error});
-        return;
-    }
-
-    response.status(200).json({ message: `Preset with name=${request.body.presetName} created` });
-}
-
-// to be deprecated
-const upload = async function(request: any, response: Response) {
-    try {
-        await registerImages(response.locals.user.id, request.files, request.body);
-    } catch(error) {
-        console.error(error)
-        response.status(500).send({ error: error})
-        return;
-    }
-
-    response.status(200).json({ message: `Preset with name=${request.body.presetName} uploaded` });
-}
-
-
-
 const edit = async function(request: Request, response: Response) {
     await executeSqlQuery(
         `UPDATE presets SET is_playable_by_all = $1, is_viewable_by_all = $2, is_viewable_by_users = $3 
@@ -74,7 +43,6 @@ const edit = async function(request: Request, response: Response) {
 
     response.status(200).json({ message: `Preset with id=${request.body.id} modified` });
 }
-
 
 // IMPORTANT this one doesn't mark files and db records as deleted.
 // It really deletes it for good.
@@ -96,4 +64,7 @@ const presetById = async function(request: Request, response: Response, next: Ne
     next();
 }
 
-export default { list, read, make, upload, create, edit, remove, presetById, presetsToJson };
+
+export default { list, read, make, edit, remove, presetById, presetsToJson };
+
+

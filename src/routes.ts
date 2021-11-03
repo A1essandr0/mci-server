@@ -48,8 +48,6 @@ router.param('userId', usersCtrl.userById);
 
 router.route('/api/presets')
     .get(presetsCtrl.list)
-    // to be deprecated
-    .post(authCtrl.requireSignin, authCtrl.hasAuthorization, uploadImages, presetsCtrl.upload)
 
 router.route('/api/presets/:presetId')
     .get(presetsCtrl.read)
@@ -59,11 +57,6 @@ router.route('/api/presets/:presetId')
 
 router.route('/api/make-new-preset')
     .post(authCtrl.requireSignin, authCtrl.hasAuthorization, uploadImages, presetsCtrl.make)
-
-
-// to be deprecated
-router.route('/api/new-preset')
-    .post(authCtrl.requireSignin, authCtrl.hasAuthorization, presetsCtrl.create);
 
 router.param('presetId', presetsCtrl.presetById);
 
