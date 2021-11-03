@@ -10,6 +10,7 @@ export const prepareTargetDir = function(targetDir: string) {
 }
 
 
+// TODO minifying doesn't work correctly with gifs (animated?)
 export const minifyImage = async function(picSize: number, sourceFile: string, targetFile: string) {
     return await jimp.read(sourceFile).then(
         image => {

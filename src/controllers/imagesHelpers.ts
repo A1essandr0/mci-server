@@ -57,14 +57,20 @@ export const presetsToJson = async function(userId: number | undefined) {
 }
 
 
-// TODO
+// TODO don't trust client data
 export function presetIsValid(files: any, body: any) {
+    let texts = JSON.parse(body['texts']);
+    let types = JSON.parse(body['types']);
+
 
     return true;
 }
 
 
+
+
 export async function makeNewPreset(userId: number, files: any, body: any) {
+    console.log(files, body);
 
     // correct directory for preset
     let presetExists = await executeSqlQuery(
@@ -91,19 +97,65 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
     );
     if (newMadePreset.length === 0) throw `Something went wrong during uploading preset '${body.presetName}'`;
 
-    // creating and registering images
-    // copying file images
-    // if no image for card back / card empty provided, default ones are used
     prepareTargetDir(`${config.presetDir}/${body.presetName}`);
-    let [backFilename, emptyFilename] = [defaultBackFilename, defaultEmptyFilename];
- 
-
-
+    let [texts, types] = [ JSON.parse(body['texts']), JSON.parse(body['types']) ];
 
     // back and empty slots
+    [   ['0_0', 'back', body.backColor ],
+        ['0_1', 'empty', body.emptyColor ]
+    ].forEach(async (slot) => {
+        if (slot[0] in types) {
+            let fileObject = files.filter((item: any) => item.fieldname === slot[0])[0];
+            let fileExtension = fileObject.mimetype.slice(6);
+            minifyImage(defaultPicSize, fileObject.path, 
+                `${config.presetDir}/${body.presetName}/${slot[1]}`);
+            fs.rmSync(fileObject.path);
+        } else {
+            let backImg = await generateImage('', defaultPicSize, slot[2], defaultFont);
+            backImg.write(`${config.presetDir}/${body.presetName}/${slot[1]}`);    
+        }
+    })
 
 
+    // main slots
+    for (let key of Object.keys(types)) {
+        if (key === '0_0' || key === '0_1') continue;
+        let [pairNum, cardNum] = key.split('_')
+        let infoKey = `${pairNum}_0`; let info: string;
+        if (infoKey in texts) info = texts[infoKey]
+            else info = 'n/a';
+        let cardValue = `value_${pairNum}`;
 
+        if (types[key] === 'img') {
+            let fileObject = files.filter((item: any) => item.fieldname === key)[0];
+            let fileExtension = fileObject.mimetype.slice(6);
+            let targetFileName = `${config.presetDir}/${body.presetName}/${fileObject.filename}.${fileExtension}`;
+
+            minifyImage(defaultPicSize, fileObject.path, targetFileName);
+
+            await executeSqlQuery(
+                "INSERT INTO cards (preset_id, value, filename, info) VALUES ($1, $2, $3, $4) RETURNING value",
+                [newMadePreset[0].id, cardValue, `${fileObject.filename}.${fileExtension}`, info]
+            )
+
+            fs.rmSync(fileObject.path);
+        }
+
+        else if (types[key] === 'text') {
+            let bgColor = pairNum === '1' ? body.bgColorOne : body.bgColorTwo;
+            let filename = `image_${key}.png`;
+            let cardWord = texts[key];
+
+            let img = await generateImage(cardWord, defaultPicSize, bgColor, defaultFont);
+            img.write(`${config.presetDir}/${body.presetName}/${filename}`)
+
+            await executeSqlQuery(
+                "INSERT INTO cards (preset_id, value, filename, info) VALUES ($1, $2, $3, $4) RETURNING value",
+                [newMadePreset[0].id, cardValue, filename, info ]
+            )
+        }
+
+    }
 
     // update owned presets counter for user
     await executeSqlQuery(
@@ -111,6 +163,7 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
         [ownedBy[0].presets_owned + 1, userId]
     );
 }
+
 
 
 
@@ -256,6 +309,9 @@ export async function registerImages(userId: number, files: any, body: any) {
         [ownedBy[0].presets_owned + 1, userId]
     );
 }
+
+
+
 
 
 export async function deleteImages(presetRecord: any) {
