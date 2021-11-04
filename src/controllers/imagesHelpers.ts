@@ -4,9 +4,7 @@ import { executeSqlQuery } from './dbHelpers';
 import { prepareTargetDir, minifyImage, generateImage } from './generalLib';
 
 
-const [defaultBackFilename, defaultEmptyFilename, defaultFont, defaultPicSize] = [
-    `${config.presetDir}/${config.defaultBackFilename}`, 
-    `${config.presetDir}/${config.defaultEmptyFilename}`,
+const [defaultFont, defaultPicSize] = [
     `${config.presetDir}/${config.defaultFont}`,
     config.defaultPicSize,
 ]
