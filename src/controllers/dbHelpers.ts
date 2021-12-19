@@ -3,7 +3,7 @@ import { Client } from 'pg';
 import config from '../../config/config';
 
 
-export const executeSqlQuery = async function(text: string, values: any[] = []) {
+export const executeSqlQuery = async function(text: string, values: (string|number)[] = []) {
     let queryResult;
 
     if (config.dbMode === 'sqlite') {

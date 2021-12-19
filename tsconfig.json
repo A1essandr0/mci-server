@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
+    "noImplicitAny": true,
 
     "sourceMap": true,
     "outDir": "./dist",
@@ -9,6 +10,7 @@
     "esModuleInterop": true,
 
     "skipLibCheck": true,
+    "baseUrl": "./",
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"]

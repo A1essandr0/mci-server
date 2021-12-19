@@ -55,7 +55,7 @@ export const presetsToJson = async function(userId: number | undefined) {
 }
 
 
-// TODO don't trust client data
+// TODO!!! don't trust client data
 export function presetIsValid(files: any, body: any) {
     let texts = JSON.parse(body['texts']);
     let types = JSON.parse(body['types']);
@@ -102,7 +102,6 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
     ].forEach(async (slot) => {
         if (slot[0] in types) {
             let fileObject = files.filter((item: any) => item.fieldname === slot[0])[0];
-            let fileExtension = fileObject.mimetype.slice(6);
             minifyImage(defaultPicSize, fileObject.path, 
                 `${config.presetDir}/${body.presetName}/${slot[1]}`);
             fs.rmSync(fileObject.path);
@@ -115,7 +114,7 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
     // main slots
     for (let key of Object.keys(types)) {
         if (key === '0_0' || key === '0_1') continue;
-        let [pairNum, cardNum] = key.split('_')
+        let [pairNum, _ ] = key.split('_')
         let infoKey = `${pairNum}_0`; let info: string;
         if (infoKey in texts) info = texts[infoKey]
             else info = 'n/a';
