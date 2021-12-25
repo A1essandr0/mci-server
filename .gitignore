@@ -2,6 +2,8 @@
 dist/
 # compiled tests
 test/
+# database for tests
+tests-src-func/test.db
 # Dependency directories
 node_modules/
 jspm_packages/

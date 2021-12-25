@@ -17,7 +17,9 @@ describe('Functional tests for api endpoints', function() {
     let testUserId: Promise<number>;
     let testUserToken: Promise<string>;
     
+    // TODO clear db/image files after
 
+    
     describe('signing up', function() {
         it('#signing up as tester', async function() {
             let signupRequest = await axios.post(
@@ -94,7 +96,7 @@ describe('Functional tests for api endpoints', function() {
     })
 
 
-
+    // TODO making/deleting preset tests
     describe.skip('#making preset', function() {
     });
 
@@ -107,7 +109,7 @@ describe('Functional tests for api endpoints', function() {
 
     describe('admin', function() {
         it('#getting user info without signin is not allowed', async function() {
-            let response = await axios.get(
+            await axios.get(
                 `${apiUrl}/api/users/1`
             ).catch((errData: any) => {
                 assert.strictEqual(errData.response.status, 401)
@@ -200,5 +202,6 @@ describe('Functional tests for api endpoints', function() {
             assert.strictEqual(deleteRequest.data['message'], `User with id=${userId} deleted`);
         })        
     })
+
 
 })

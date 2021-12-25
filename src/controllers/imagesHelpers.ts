@@ -2,6 +2,7 @@ const fs = require('fs');
 import config from '../../config/config';
 import { executeSqlQuery } from './dbHelpers';
 import { prepareTargetDir, minifyImage, generateImage } from './generalLib';
+import { PresetDataTexts, PresetDataTypes, PresetDataKey, ReceivedFile } from 'src/globalTypes';
 
 
 const [defaultFont, defaultPicSize] = [
@@ -55,19 +56,24 @@ export const presetsToJson = async function(userId: number | undefined) {
 }
 
 
-// TODO!!! don't trust client data
-export function presetIsValid(files: any, body: any) {
-    let texts = JSON.parse(body['texts']);
-    let types = JSON.parse(body['types']);
+// don't trust client data
+export function presetIsValid(body: any) {
+    const texts: PresetDataTexts = JSON.parse(body['texts']);
+    const types: PresetDataTypes = JSON.parse(body['types']);
 
-
+    let key: PresetDataKey;
+    for (key in types) {
+        let [pairNum, itemNum] = key.split('_');
+        if (pairNum === '0' || itemNum === '0') continue;
+        itemNum = itemNum === "1" ? "2" : "1";
+        const paired = `${pairNum}_${itemNum}`;
+        if (!(paired in types)) return false;
+    }
     return true;
 }
 
 
-export async function makeNewPreset(userId: number, files: any, body: any) {
-    // console.log(files, body);
-
+export async function makeNewPreset(userId: number, files: ReceivedFile[], body: any) {
     // correct directory for preset
     let presetExists = await executeSqlQuery(
         "SELECT id FROM presets WHERE name = $1",
@@ -94,7 +100,8 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
     if (newMadePreset.length === 0) throw `Something went wrong during uploading preset '${body.presetName}'`;
 
     prepareTargetDir(`${config.presetDir}/${body.presetName}`);
-    let [texts, types] = [ JSON.parse(body['texts']), JSON.parse(body['types']) ];
+    const texts = JSON.parse(body['texts']);
+    const types = JSON.parse(body['types']);
 
     // back and empty slots
     [   ['0_0', 'back', body.backColor ],
@@ -112,16 +119,17 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
     })
 
     // main slots
-    for (let key of Object.keys(types)) {
+    for (let key in types) {
         if (key === '0_0' || key === '0_1') continue;
-        let [pairNum, _ ] = key.split('_')
-        let infoKey = `${pairNum}_0`; let info: string;
+        let pair = key.split('_'); let pairNum = Number(pair[0]);
+
+        let infoKey: PresetDataKey = `${pairNum}_0`; let info: string;
         if (infoKey in texts) info = texts[infoKey]
             else info = 'n/a';
         let cardValue = `value_${pairNum}`;
 
         if (types[key] === 'img') {
-            let fileObject = files.filter((item: any) => item.fieldname === key)[0];
+            let fileObject = files.filter((item) => item.fieldname === key)[0];
             let fileExtension = fileObject.mimetype.slice(6);
             let targetFileName = `${config.presetDir}/${body.presetName}/${fileObject.filename}.${fileExtension}`;
 
@@ -136,7 +144,7 @@ export async function makeNewPreset(userId: number, files: any, body: any) {
         }
 
         else if (types[key] === 'text') {
-            let bgColor = pairNum === '1' ? body.bgColorOne : body.bgColorTwo;
+            let bgColor = pairNum === 1 ? body.bgColorOne : body.bgColorTwo;
             let filename = `image_${key}.png`;
             let cardWord = texts[key];
 

@@ -16,7 +16,7 @@ const read = function(request: Request, response: Response) {
 }
 
 const make = async function(request: any, response: Response) {
-    if (!presetIsValid(request.files, request.body)) {
+    if (!presetIsValid(request.body)) {
         response.status(500).send(
             { error: `Sent preset with name=${request.body.presetName} hasn't been formed correctly`});
         return;

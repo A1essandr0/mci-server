@@ -6,7 +6,8 @@ import {
 let sconfig;
 let secondaryConfig = {
     databasePath: 'presets.db',
-    presetSrcPath: 'preset_src'
+    presetSrcPath: 'preset_src',
+    initDbOnStart: false,
 
 };
 switch (process.env.NODE_ENV) {
@@ -18,6 +19,7 @@ switch (process.env.NODE_ENV) {
         sconfig = localProductionConfiguration;
         secondaryConfig.databasePath = './tests-src-func/test.db';
         secondaryConfig.presetSrcPath = 'preset_src';
+        secondaryConfig.initDbOnStart = true;
         break;
     
     default:
@@ -55,9 +57,9 @@ const config = {
     defaultFont: 'FreeSans20White.fnt',
     defaultPicSize: 120,
 
-    initDbOnStart: false,            // restore DB to default state on start?
-    clearUploadsOnStart: true,      // delete everything from uploads on start?
-    verifyPresetsOnStart: true,     // delete user added presets on start?
+    initDbOnStart: secondaryConfig.initDbOnStart,   // restore DB to default state on start?
+    clearUploadsOnStart: true,                      // delete everything from uploads on start?
+    verifyPresetsOnStart: true,                     // delete user added presets on start?
 
     secret: sconfig.secret,
     jwtSecret: sconfig.jwtSecret,
