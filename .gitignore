@@ -18,7 +18,9 @@ uploads/
 preset_src/
 presets.db
 backup/
-
+# other somewhat sensitive
+deploy_azure.sh
+memoricci.service
 
 ####################
 # Logs

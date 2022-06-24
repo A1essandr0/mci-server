@@ -54,7 +54,7 @@ const config = {
     maxFileSize: 500*1024,
     maxFilesNum: 24,
 
-    defaultFont: 'FreeSans20White.fnt',
+    defaultFont: 'Default-20-white.fnt',
     defaultPicSize: 120,
 
     initDbOnStart: secondaryConfig.initDbOnStart,   // restore DB to default state on start?

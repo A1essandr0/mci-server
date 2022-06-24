@@ -11,7 +11,8 @@
     "backup": "node ./scripts/backup-db.js",
     "test-unit": "tsc --project tsconfig.test.json && mocha test/tests-src-unit/**/* --recursive",
     "test-func": "tsc --project tsconfig.test.json && mocha test/tests-src-func/**/* --recursive",
-    "test": "npm run test-unit"
+    "test": "npm run test-unit",
+    "deploy": "bash deploy_azure.sh"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +26,7 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "^15.0.1",
     "@types/pg": "^8.6.0",
-    "mocha": "^8.3.2",
+    "mocha": "^10.0.0",
     "nodemon": "^2.0.7",
     "typescript": "^4.2.4"
   },
@@ -39,7 +40,7 @@
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "helmet": "^4.6.0",
-    "jimp": "^0.16.1",
+    "jimp": "^0.16.0",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.2",
     "pg": "^8.6.0"
